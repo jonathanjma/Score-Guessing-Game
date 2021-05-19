@@ -1,0 +1,43 @@
+p.ge {
+    text-align: center;
+}
+
+button.ge {
+    text-align: center;
+}
+
+.gp {
+    font-size: 30pt;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.gbtn {
+    display: block;
+    font-size: 11pt;
+    width: 100px;
+    height: 23px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.gbtn:hover {
+    border: 2px solid lightskyblue;
+}
+
+.gbtn:focus {
+    background-color: lightskyblue;
+}
+
+#icon {
+    position: fixed;
+    height: 200px;
+    width: 200px;
+
+    bottom: 0;
+    right: 0;
+    margin: 20px;
+    margin-right: 40px;
+}
