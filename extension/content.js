@@ -81,6 +81,13 @@ function action(tests_div) {
 
 function processClick(guess) {
     console.log("Guess: " + guess)
+
+    if (guess === "&lt; 1450" && total_score < 1450) {
+        guess = total_score;
+    } else if (guess === "Lower") {
+        guess = 1440
+    }
+
     if (guess > total_score) {
         setStatus("Too high!")
     } else if (guess < total_score) {
