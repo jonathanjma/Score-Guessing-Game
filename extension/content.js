@@ -2,6 +2,13 @@
 document.getElementById("root").setAttribute("hidden", "true")
 console.log("hiding root")
 
+// get test filter
+let test_filter
+chrome.storage.local.get(['filter'], function(fromStorage) {
+    test_filter = fromStorage.filter
+    console.log("filter: " + test_filter)
+})
+
 // inject game html and style
 fetch(chrome.runtime.getURL('/content.css')).then(r => r.text()).then(css => {
     css = '<style>' + css + '</style>'
@@ -9,18 +16,15 @@ fetch(chrome.runtime.getURL('/content.css')).then(r => r.text()).then(css => {
 })
 fetch(chrome.runtime.getURL('/high_low_game.html')).then(r => r.text()).then(html => {
     document.body.insertAdjacentHTML('beforeend', html);
+
+    document.getElementById("filter").innerHTML += test_filter
+    document.getElementById("mode").innerHTML += 'SAT'
+
     let icon = document.getElementById("icon")
     icon.src = chrome.extension.getURL("icon.png")
     icon.addEventListener('click', giveUp)
 })
 console.log("injecting game")
-
-// get test filter
-let test_filter
-chrome.storage.local.get(['filter'], function(fromStorage) {
-    test_filter = fromStorage.filter
-    console.log("filter: " + test_filter)
-})
 
 // delay to make sure everything loads
 window.addEventListener("load", function() {
@@ -82,9 +86,9 @@ function action(tests_div) {
 function processClick(guess) {
     console.log("Guess: " + guess)
 
-    if (guess === "&lt; 1450" && total_score < 1450) {
+    if (guess.indexOf("&lt;") !== -1 && total_score < 1450) {
         guess = total_score;
-    } else if (guess === "Lower") {
+    } else if (guess.indexOf("&lt;") !== -1) {
         guess = 1440
     }
 
