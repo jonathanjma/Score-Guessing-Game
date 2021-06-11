@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "High Low Score Guessing Game",
+  "name": "Score Guessing Game",
   "description": "Guess your test score before you see it!",
   "version": "1.0",
   "content_scripts":[
