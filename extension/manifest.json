@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "High Low Game",
-  "description": "Guess your score before you see it!",
+  "name": "High Low Score Guessing Game",
+  "description": "Guess your test score before you see it!",
   "version": "1.0",
   "content_scripts":[
     {
@@ -25,9 +25,7 @@
     "256": "icon.png"
   },
   "permissions": [
-    "activeTab",
-    "storage",
-    "https://ajax.googleapis.com/"
+    "storage"
   ],
   "web_accessible_resources": [
     "high_low_game.html",
