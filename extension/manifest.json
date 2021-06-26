@@ -2,13 +2,14 @@
   "manifest_version": 2,
   "name": "Score Guessing Game",
   "description": "Guess your test score before you see it!",
-  "version": "1.0",
+  "version": "2.0",
   "content_scripts":[
     {
       "matches":[
-        "https://studentscores.collegeboard.org/viewscore"
+        "https://studentscores.collegeboard.org/viewscore",
+        "https://apscore.collegeboard.org/scores/view-your-scores"
       ],
-      "js": ["content.js"]
+      "js": ["game/content.js"]
     }
   ],
   "background": {
@@ -16,7 +17,7 @@
   },
   "browser_action": {
     "default_icon": "icon.png",
-    "default_popup": "popup.html"
+    "default_popup": "popup/popup.html"
   },
   "icons": {
     "16": "icon.png",
@@ -28,8 +29,8 @@
     "storage"
   ],
   "web_accessible_resources": [
-    "high_low_game.html",
-    "content.css",
+    "game/high_low_game.html",
+    "game/content.css",
     "icon.png"
   ]
 }

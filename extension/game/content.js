@@ -10,11 +10,11 @@ chrome.storage.local.get(['filter'], function(fromStorage) {
 })
 
 // inject game html and style
-fetch(chrome.runtime.getURL('/content.css')).then(r => r.text()).then(css => {
+fetch(chrome.runtime.getURL('/game/content.css')).then(r => r.text()).then(css => {
     css = '<style>' + css + '</style>'
     document.head.insertAdjacentHTML('beforeend', css);
 })
-fetch(chrome.runtime.getURL('/high_low_game.html')).then(r => r.text()).then(html => {
+fetch(chrome.runtime.getURL('/game/high_low_game.html')).then(r => r.text()).then(html => {
     document.body.insertAdjacentHTML('beforeend', html);
 
     document.getElementById("filter").innerHTML += test_filter
@@ -29,10 +29,6 @@ console.log("injecting game")
 // delay to make sure everything loads
 window.addEventListener("load", function() {
     console.log("hi, entering page load delay.....")
-    // sleep(3500).then(() => {
-    //     console.log("delay done")
-    //     action()
-    // })
     let start = Date.now()
     checkElement('.scores-container').then((tests_div) => {
         console.log(tests_div);
@@ -83,6 +79,7 @@ function action(tests_div) {
     }
 }
 
+// called when guessing buttons are pressed
 function processClick(guess) {
     console.log("Guess: " + guess)
 
@@ -106,6 +103,7 @@ function processClick(guess) {
     }
 }
 
+// give up
 function giveUp() {
     if (confirm("Are you sure you want to give up?")) {
         document.getElementById("game").remove()
@@ -114,14 +112,17 @@ function giveUp() {
     }
 }
 
+// set status text
 function setStatus(text) {
     document.getElementsByClassName("status")[0].innerHTML = text
 }
 
+// sleep
 async function sleep(ms) {
     await new Promise(resolve => setTimeout(resolve, ms))
 }
 
+// check if element is present
 const checkElement = async selector => {
     while (document.querySelector(selector) === null) {
         await new Promise( resolve => requestAnimationFrame(resolve))
