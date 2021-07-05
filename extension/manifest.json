@@ -7,9 +7,10 @@
     {
       "matches":[
         "https://studentscores.collegeboard.org/viewscore",
-        "https://apscore.collegeboard.org/scores/view-your-scores"
+        "https://apscore.collegeboard.org/scores/view-your-scores",
+        "file:///C:/Users/jonat/tempstore/*"
       ],
-      "js": ["game/content.js"]
+      "js": ["game/content2.js"]
     }
   ],
   "background": {
@@ -30,6 +31,7 @@
   ],
   "web_accessible_resources": [
     "game/high_low_game.html",
+    "game/high_low_game2.html",
     "game/content.css",
     "icon.png"
   ]

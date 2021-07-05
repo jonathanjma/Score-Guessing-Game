@@ -13,10 +13,11 @@ document.getElementById('multiSelect').setAttribute('data-multiSelect', apTests)
 // })
 
 document.getElementById('satLb').checked = true
+document.getElementById('apLb').checked = true
 
 document.getElementById('satR').checked = true
 document.getElementById('sat').value = 'April 27'
-let apDefault = "[\"Physics 1: Algebra-Based\", \"Statistics\"]";
+let apDefault = "[\"Computer Science A\"]" //"[\"Physics 1: Algebra-Based\", \"Statistics\"]";
 document.getElementById('multiSelect').setAttribute('data-default', apDefault)
 
 pureScriptSelect('#multiSelect');

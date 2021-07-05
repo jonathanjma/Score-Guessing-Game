@@ -114,7 +114,7 @@ function giveUp() {
 
 // set status text
 function setStatus(text) {
-    document.getElementsByClassName("status")[0].innerHTML = text
+    document.getElementById("status").innerHTML = text
 }
 
 // sleep
