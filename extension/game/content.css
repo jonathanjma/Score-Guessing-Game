@@ -1,3 +1,50 @@
+/* Box sizing rules */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Remove default margin */
+body, h1, h2, h3, h4, p {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* Set core body defaults */
+body {
+    /*min-height: 100vh;*/
+    scroll-behavior: smooth;
+    text-rendering: optimizeSpeed;
+    line-height: 1.5;
+}
+
+/* A elements that don't have a class get default styles */
+a:not([class]) {
+    text-decoration-skip-ink: auto;
+}
+
+/* Make images easier to work with */
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* Inherit fonts for inputs and buttons */
+input, button, textarea, select {
+    font: inherit;
+}
+
+
+
+
+
+#game * {
+    font-family: "Open Sans", sans-serif;
+    color: #363636;
+}
+
 p.ge {
     text-align: center;
 }
@@ -7,18 +54,18 @@ button.ge {
 }
 
 .gp {
-    font-size: 30pt;
+    font-size: 29pt;
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
 .gbtn {
     display: block;
-    font-size: 11pt;
+    font-size: 10.5pt;
     width: 100px;
-    height: 23px;
+    height: 25px;
     border-radius: 10px;
-    margin-bottom: 8px;
+    margin-bottom: 7px;
     margin-left: auto;
     margin-right: auto;
 }

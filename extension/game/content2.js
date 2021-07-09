@@ -1,4 +1,5 @@
 // hmm page not hidden fast enough
+// does not work on referrers (when linked clicked on other page)
 
 // hide page
 Array.prototype.slice.call(document.querySelectorAll("body *:not(#game)")).forEach(function(value) {
@@ -20,7 +21,7 @@ fetch(chrome.runtime.getURL('/game/content.css')).then(r => r.text()).then(css =
     document.head.insertAdjacentHTML('beforeend', css);
 })
 fetch(chrome.runtime.getURL('/game/high_low_game2.html')).then(r => r.text()).then(html => {
-    document.body.insertAdjacentHTML('beforeend', html);
+    document.body.insertAdjacentHTML('afterbegin', html);
 
     let filter_text = ""
     for (let test of test_filter) {

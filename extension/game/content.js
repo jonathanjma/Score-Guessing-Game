@@ -15,7 +15,7 @@ fetch(chrome.runtime.getURL('/game/content.css')).then(r => r.text()).then(css =
     document.head.insertAdjacentHTML('beforeend', css);
 })
 fetch(chrome.runtime.getURL('/game/high_low_game.html')).then(r => r.text()).then(html => {
-    document.body.insertAdjacentHTML('beforeend', html);
+    document.body.insertAdjacentHTML('afterbegin', html);
 
     document.getElementById("filter").innerHTML += test_filter
     document.getElementById("mode").innerHTML += 'SAT'
