@@ -1,4 +1,4 @@
-document.getElementById('save').addEventListener('click', saveFilter)
+// setup ap multiselect
 let apTests = "[\"2-D Art and Design\", \"3-D Art and Design\", \"Drawing\", \"Art History\", \"Music Theory\", \"Comparative Government and Politics\"," +
     "\"European History\", \"Human Geography\", \"Macroeconomics\", \"Microeconomics\", \"Psychology\", \"United States Government and Politics\"," +
     "\"United States History\", \"World History: Modern\", \"Calculus AB\", \"Calculus BC\", \"Computer Science A\", \"Computer Science Principles\"," +
@@ -8,32 +8,52 @@ let apTests = "[\"2-D Art and Design\", \"3-D Art and Design\", \"Drawing\", \"A
     "\"Spanish Literature and Culture\"]"
 document.getElementById('multiSelect').setAttribute('data-multiSelect', apTests)
 
-// chrome.storage.local.get(['filter'], function(fromStorage) {
-//     document.getElementById('sat').value = fromStorage.filter
-// })
+document.getElementById('save').addEventListener('click', saveFilter)
 
-document.getElementById('satLb').checked = true
-document.getElementById('apLb').checked = true
+// get saved options
+console.log("stored values:")
+chrome.storage.local.get(['satEnabled'], function(fromStorage) {
+    console.log(fromStorage.satEnabled)
+    document.getElementById('satLb').checked = fromStorage.satEnabled
+})
+chrome.storage.local.get(['apEnabled'], function(fromStorage) {
+    console.log(fromStorage.apEnabled)
+    document.getElementById('apLb').checked = fromStorage.apEnabled
+})
 
-document.getElementById('satR').checked = true
-document.getElementById('sat').value = 'April 27'
-let apDefault = "[\"Computer Science A\"]" //"[\"Physics 1: Algebra-Based\", \"Statistics\"]";
-document.getElementById('multiSelect').setAttribute('data-default', apDefault)
-
-pureScriptSelect('#multiSelect');
+chrome.storage.local.get(['sat'], function(fromStorage) {
+    console.log(fromStorage.sat)
+    document.getElementById('sat').value = fromStorage.sat
+})
+chrome.storage.local.get(['satOverPsat'], function(fromStorage) {
+    console.log(fromStorage.satOverPsat)
+     if (fromStorage.satOverPsat) {
+         document.getElementById('satR').checked = true
+     } else {
+         document.getElementById('psatR').checked = true
+     }
+})
+chrome.storage.local.get(['ap'], function(fromStorage) {
+    console.log(fromStorage.ap)
+    document.getElementById('multiSelect').setAttribute('data-default', fromStorage.ap)
+    pureScriptSelect('#multiSelect')
+})
 
 function saveFilter() {
-    let sat = document.getElementById("sat").value;
-    let satOverPsat = document.getElementById("satR").checked;
-    let ap = JSON.parse(document.getElementById("ap").value);
-    let satEnabled = document.getElementById('satLb').checked;
-    let apEnabled = document.getElementById('apLb').checked;
-    console.log(sat)
-    console.log(satOverPsat)
-    console.log(ap)
-    console.log(satEnabled)
-    console.log(apEnabled)
-    // chrome.storage.local.set({'filter': filterIn});
+    let satEnabled = document.getElementById('satLb').checked
+    let apEnabled = document.getElementById('apLb').checked
+    let sat = document.getElementById("sat").value
+    let satOverPsat = document.getElementById("satR").checked
+    let ap = document.getElementById("ap").value
+
+    console.log("saved values:")
+    console.log(satEnabled); console.log(apEnabled); console.log(sat); console.log(satOverPsat); console.log(ap);
+
+    chrome.storage.local.set({'satEnabled': satEnabled});
+    chrome.storage.local.set({'apEnabled': apEnabled});
+    chrome.storage.local.set({'sat': sat});
+    chrome.storage.local.set({'satOverPsat': satOverPsat});
+    chrome.storage.local.set({'ap': ap});
 }
 
 let arrows = document.getElementsByClassName('arrow')
