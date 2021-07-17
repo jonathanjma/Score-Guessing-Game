@@ -10,7 +10,7 @@
         "https://apscore.collegeboard.org/scores/view-your-scores",
         "file:///C:/Users/jonat/tempstore/*"
       ],
-      "js": ["game/content2.js"]
+      "js": ["game/content.js"]
     }
   ],
   "background": {
@@ -30,8 +30,9 @@
     "storage"
   ],
   "web_accessible_resources": [
-    "game/high_low_game.html",
-    "game/high_low_game2.html",
+    "game/sat_game.html",
+    "game/psat_game.html",
+    "game/ap_game.html",
     "game/content.css",
     "icon.png"
   ]

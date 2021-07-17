@@ -1,45 +1,104 @@
+// hmm page not hidden fast enough
+// does not work with referrers/arguments in url (when linked clicked on other page)
+
 // hide page
-document.getElementById("root").setAttribute("hidden", "true")
-console.log("hiding root")
+Array.prototype.slice.call(document.querySelectorAll("body *")).forEach(function(value) {
+    value.classList.add("hide");
+});
+console.log("hiding page")
 
-// get test filter
+// determine mode
+class Enum {
+    constructor(...keys) {
+        keys.forEach((key, i) => {
+            this[key] = i;
+        });
+        Object.freeze(this);
+    }
+
+    *[Symbol.iterator]() {
+        for (let key of Object.keys(this)) yield key;
+    }
+}
+const modesEnum = new Enum('sat', 'psat', 'ap');
+
+let mode, modeName
 let test_filter
-chrome.storage.local.get(['filter'], function(fromStorage) {
-    test_filter = fromStorage.filter
-    console.log("filter: " + test_filter)
-})
+new Promise(function(resolve, reject) {
+    if (location.href.toLowerCase().includes('ap')) {
+        resolve(modesEnum['ap'])
+    } else {
+        chrome.storage.local.get(['satOverPsat'], function(fromStorage) {
+            resolve(fromStorage['satOverPsat'] ? modesEnum['sat'] : modesEnum['psat'])
+        })
+    }
+}).then(value =>  {
+    mode = value
+    modeName = Object.keys(modesEnum).find(key => modesEnum[key] === mode)
+    console.log(mode)
+    console.log(modeName)
 
-// inject game html and style
-fetch(chrome.runtime.getURL('/game/content.css')).then(r => r.text()).then(css => {
-    css = '<style>' + css + '</style>'
-    document.head.insertAdjacentHTML('beforeend', css);
-})
-fetch(chrome.runtime.getURL('/game/high_low_game.html')).then(r => r.text()).then(html => {
-    document.body.insertAdjacentHTML('afterbegin', html);
+    // get test filter
+    return new Promise(function(resolve, reject) {
+        if (mode === modesEnum['ap']) {
+            chrome.storage.local.get(['ap'], function (fromStorage) {
+                resolve(JSON.parse(fromStorage['ap']))
+            })
+        } else {
+            chrome.storage.local.get(['sat'], function (fromStorage) {
+                resolve(fromStorage['sat'])
+            })
+        }
+    })
+}).then((value) => {
+    test_filter = value
+    console.log(test_filter)
 
-    document.getElementById("filter").innerHTML += test_filter
-    document.getElementById("mode").innerHTML += 'SAT'
+    // inject game html and style
+    return fetch(chrome.runtime.getURL('/game/content.css')).then(r => r.text()).then(css => {
+        css = '<style>' + css + '</style>'
+        document.head.insertAdjacentHTML('beforeend', css);
+    })
+}).then(() => {
+    return fetch(chrome.runtime.getURL('/game/' + modeName + '_game.html')).then(r => r.text()).then(html => {
+        document.body.insertAdjacentHTML('afterbegin', html);
 
-    let icon = document.getElementById("icon")
-    icon.src = chrome.extension.getURL("icon.png")
-    icon.addEventListener('click', giveUp)
-})
-console.log("injecting game")
+        let filter_text = ""
+        if (mode === modesEnum['ap']) {
+            for (let test of test_filter) {
+                filter_text += test + " "
+            }
+        } else {
+            filter_text = test_filter
+        }
+        document.getElementById("filter").innerHTML += filter_text
+        document.getElementById("mode").innerHTML += modeName.toUpperCase()
 
-// delay to make sure everything loads
-window.addEventListener("load", function() {
+        let icon = document.getElementById("icon")
+        icon.src = chrome.extension.getURL("icon.png")
+        icon.addEventListener('click', giveUp)
+    })
+}).then(() => {
+    console.log("injecting game")
+
+    // delay to make sure everything loads
     console.log("hi, entering page load delay.....")
     let start = Date.now()
-    checkElement('.scores-container').then((tests_div) => {
-        console.log(tests_div);
+    checkElement(modeName === 'ap' ? '#scoresListArea' : '.scores-container').then((div) => {
+        console.log(div);
         console.log("delay done")
         console.log("waited " + (Date.now() - start) + " ms for page load")
-        action(tests_div)
-    });
+
+        if (modeName === 'ap') {
+            ap_action(div)
+        } else {
+            sat_action(div)
+        }
+    })
 })
 
-let total_score
-function action(tests_div) {
+let curScore
+function sat_action(tests_div) {
 
     // find correct test
     let test_div
@@ -57,12 +116,10 @@ function action(tests_div) {
         // find scores in test element
         let scores = test_div.getElementsByClassName("score")
         console.log(scores)
-        total_score = scores[0].innerHTML
+        curScore = scores[0].innerHTML
         let reading_score = scores[1].innerHTML
         let math_score = scores[2].innerHTML
-        console.log("Scores: " + total_score + " " + reading_score + " " + math_score)
-
-        // alert("Scores: " + total_score + " " + reading_score + " " + math_score)
+        console.log("Scores: " + curScore + " " + reading_score + " " + math_score)
 
         // enable game buttons
         let game_buttons = document.getElementsByClassName("gbtn")
@@ -79,26 +136,81 @@ function action(tests_div) {
     }
 }
 
+let score_dict = []
+let index = 0, curTest
+function ap_action(years_div) {
+
+    try {
+        let tests_div = years_div.children[0].children[1]
+        for (let test of tests_div.children) {
+            console.log(test)
+            let test_name = test.children[0].children[0].innerHTML
+            let test_score = test.children[1].children[0].children[0].innerHTML
+
+            console.log(test_name)
+            console.log(test_score)
+            if (test_filter.includes(test_name)) {
+                score_dict.push({test: test_name, score: parseInt(test_score)})
+            }
+        }
+        console.log(score_dict)
+
+        // enable game buttons
+        let game_buttons = document.getElementsByClassName("gbtn")
+        for (let button of game_buttons) {
+            button.addEventListener("click", () => {
+                processClick(button.innerHTML)
+            })
+        }
+
+        nextTest()
+
+    } catch (e) {
+        setStatus("Error, check test filter and reload")
+        console.log("error, could not locate scores")
+        console.log(e)
+    }
+}
+
+function nextTest() {
+    curTest = score_dict[index]["test"]
+    curScore = score_dict[index]["score"]
+    console.log(curTest + " " + curScore)
+
+    document.getElementById("test").innerHTML = curTest
+    setStatus("Pick a Number!")
+
+    index++
+}
+
 // called when guessing buttons are pressed
 function processClick(guess) {
     console.log("Guess: " + guess)
 
-    if (guess.indexOf("&lt;") !== -1 && total_score < 1450) {
-        guess = total_score;
-    } else if (guess.indexOf("&lt;") !== -1) {
-        guess = 1440
+    if (mode !== modesEnum['ap']) {
+        if (guess.indexOf("&lt;") !== -1 && curScore < (mode === modesEnum['sat'] ? 1450 : 1370)) {
+            guess = curScore;
+        } else if (guess.indexOf("&lt;") !== -1) {
+            guess = mode === modesEnum['sat'] ? 1440 : 1360
+        }
     }
 
-    if (guess > total_score) {
+    if (guess > curScore) {
         setStatus("Too high!")
-    } else if (guess < total_score) {
+    } else if (guess < curScore) {
         setStatus("Too low!")
     } else {
         setStatus("You guessed it!")
         sleep(1500).then(() => {
-            document.getElementById("game").remove()
-            document.getElementById("root").removeAttribute("hidden")
-            console.log("game done, unhiding root :-)")
+            if (index !== score_dict.length) {
+                nextTest()
+            } else {
+                document.getElementById("game").remove()
+                Array.prototype.slice.call(document.querySelectorAll("body *")).forEach(function(value) {
+                    value.classList.remove("hide");
+                });
+                console.log("game done, unhiding page :-)")
+            }
         })
     }
 }
@@ -107,8 +219,11 @@ function processClick(guess) {
 function giveUp() {
     if (confirm("Are you sure you want to give up?")) {
         document.getElementById("game").remove()
-        document.getElementById("root").removeAttribute("hidden")
-        console.log("user gave up, unhiding root :-(")
+
+        Array.prototype.slice.call(document.querySelectorAll("body *")).forEach(function(value) {
+            value.classList.remove("hide");
+        });
+        console.log("user gave up, unhiding page :-(")
     }
 }
 

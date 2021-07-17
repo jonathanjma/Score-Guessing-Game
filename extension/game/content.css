@@ -1,3 +1,4 @@
+/* CSS Reset */
 /* Box sizing rules */
 *,
 *::before,
@@ -36,10 +37,7 @@ input, button, textarea, select {
     font: inherit;
 }
 
-
-
-
-
+/* Game CSS */
 #game * {
     font-family: "Open Sans", sans-serif;
     color: #363636;

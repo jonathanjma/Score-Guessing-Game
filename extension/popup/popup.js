@@ -54,6 +54,7 @@ function saveFilter() {
     chrome.storage.local.set({'sat': sat});
     chrome.storage.local.set({'satOverPsat': satOverPsat});
     chrome.storage.local.set({'ap': ap});
+    alert('Options Saved')
 }
 
 let arrows = document.getElementsByClassName('arrow')
