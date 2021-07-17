@@ -6,9 +6,8 @@
   "content_scripts":[
     {
       "matches":[
-        "https://studentscores.collegeboard.org/viewscore",
-        "https://apscore.collegeboard.org/scores/view-your-scores",
-        "file:///C:/Users/jonat/tempstore/*"
+        "https://studentscores.collegeboard.org/*",
+        "https://apscore.collegeboard.org/scores/*"
       ],
       "js": ["game/content.js"]
     }

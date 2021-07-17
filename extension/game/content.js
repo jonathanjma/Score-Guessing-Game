@@ -1,5 +1,4 @@
 // hmm page not hidden fast enough
-// does not work with referrers/arguments in url (when linked clicked on other page)
 
 // hide page
 Array.prototype.slice.call(document.querySelectorAll("body *")).forEach(function(value) {
@@ -24,10 +23,18 @@ const modesEnum = new Enum('sat', 'psat', 'ap');
 
 let mode, modeName
 let test_filter
-new Promise(function(resolve, reject) {
-    if (location.href.toLowerCase().includes('ap')) {
+new Promise((resolve, reject) => {
+    if (location.href.includes('apscore')) {
+        if (!location.href.includes("apscore.collegeboard.org/scores/view-your-scores")) {
+            unHidePage()
+            reject("Not AP Score page")
+        }
         resolve(modesEnum['ap'])
     } else {
+        if (!location.href.includes("studentscores.collegeboard.org/viewscore")) {
+            unHidePage()
+            reject("Not SAT Score page")
+        }
         chrome.storage.local.get(['satOverPsat'], function(fromStorage) {
             resolve(fromStorage['satOverPsat'] ? modesEnum['sat'] : modesEnum['psat'])
         })
@@ -39,14 +46,29 @@ new Promise(function(resolve, reject) {
     console.log(modeName)
 
     // get test filter
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
         if (mode === modesEnum['ap']) {
-            chrome.storage.local.get(['ap'], function (fromStorage) {
-                resolve(JSON.parse(fromStorage['ap']))
+            chrome.storage.local.get(['apEnabled'], function (fromStorage) {
+                if (fromStorage['apEnabled']) {
+                    chrome.storage.local.get(['ap'], function (fromStorage) {
+                        resolve(JSON.parse(fromStorage['ap']))
+                    })
+                } else {
+                    unHidePage()
+                    reject("AP not enabled")
+                }
             })
+
         } else {
-            chrome.storage.local.get(['sat'], function (fromStorage) {
-                resolve(fromStorage['sat'])
+            chrome.storage.local.get(['satEnabled'], function (fromStorage) {
+                if (fromStorage['satEnabled']) {
+                    chrome.storage.local.get(['sat'], function (fromStorage) {
+                        resolve(fromStorage['sat'])
+                    })
+                } else {
+                    unHidePage()
+                    reject("SAT not enabled")
+                }
             })
         }
     })
@@ -54,7 +76,7 @@ new Promise(function(resolve, reject) {
     test_filter = value
     console.log(test_filter)
 
-    // inject game html and style
+    // inject game html and css
     return fetch(chrome.runtime.getURL('/game/content.css')).then(r => r.text()).then(css => {
         css = '<style>' + css + '</style>'
         document.head.insertAdjacentHTML('beforeend', css);
@@ -81,7 +103,7 @@ new Promise(function(resolve, reject) {
 }).then(() => {
     console.log("injecting game")
 
-    // delay to make sure everything loads
+    // make sure test score area has loaded
     console.log("hi, entering page load delay.....")
     let start = Date.now()
     checkElement(modeName === 'ap' ? '#scoresListArea' : '.scores-container').then((div) => {
@@ -206,9 +228,7 @@ function processClick(guess) {
                 nextTest()
             } else {
                 document.getElementById("game").remove()
-                Array.prototype.slice.call(document.querySelectorAll("body *")).forEach(function(value) {
-                    value.classList.remove("hide");
-                });
+                unHidePage()
                 console.log("game done, unhiding page :-)")
             }
         })
@@ -219,10 +239,7 @@ function processClick(guess) {
 function giveUp() {
     if (confirm("Are you sure you want to give up?")) {
         document.getElementById("game").remove()
-
-        Array.prototype.slice.call(document.querySelectorAll("body *")).forEach(function(value) {
-            value.classList.remove("hide");
-        });
+        unHidePage();
         console.log("user gave up, unhiding page :-(")
     }
 }
@@ -230,6 +247,12 @@ function giveUp() {
 // set status text
 function setStatus(text) {
     document.getElementById("status").innerHTML = text
+}
+
+function unHidePage() {
+    Array.prototype.slice.call(document.querySelectorAll("body *")).forEach(function(value) {
+        value.classList.remove("hide");
+    });
 }
 
 // sleep
