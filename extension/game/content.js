@@ -1,29 +1,28 @@
-// hmm page not hidden fast enough
-
-// hide page
-Array.prototype.slice.call(document.querySelectorAll("body *")).forEach(function(value) {
-    value.classList.add("hide");
-});
+// hide page initially
+document.getElementsByTagName('html')[0].setAttribute('hidden', 'true')
 console.log("hiding page")
 
-// determine mode
+// mode enum definition
 class Enum {
     constructor(...keys) {
         keys.forEach((key, i) => {
-            this[key] = i;
-        });
-        Object.freeze(this);
+            this[key] = i
+        })
+        Object.freeze(this)
     }
 
     *[Symbol.iterator]() {
-        for (let key of Object.keys(this)) yield key;
+        for (let key of Object.keys(this)) yield key
     }
 }
-const modesEnum = new Enum('sat', 'psat', 'ap');
+const modesEnum = new Enum('sat', 'psat', 'ap')
 
 let mode, modeName
 let test_filter
+
+// determine mode, break if not test score page
 new Promise((resolve, reject) => {
+    console.log(location.href)
     if (location.href.includes('apscore')) {
         if (!location.href.includes("apscore.collegeboard.org/scores/view-your-scores")) {
             unHidePage()
@@ -31,6 +30,7 @@ new Promise((resolve, reject) => {
         }
         resolve(modesEnum['ap'])
     } else {
+        // sometimes location.href not updated when referred?
         if (!location.href.includes("studentscores.collegeboard.org/viewscore")) {
             unHidePage()
             reject("Not SAT Score page")
@@ -45,7 +45,7 @@ new Promise((resolve, reject) => {
     console.log(mode)
     console.log(modeName)
 
-    // get test filter
+    // get test filter, break if mode is disabled
     return new Promise((resolve, reject) => {
         if (mode === modesEnum['ap']) {
             chrome.storage.local.get(['apEnabled'], function (fromStorage) {
@@ -76,14 +76,23 @@ new Promise((resolve, reject) => {
     test_filter = value
     console.log(test_filter)
 
+    // make sure all other elements are hidden after page loads
+    window.addEventListener("load", () => {
+        hidePage()
+        console.log(document.querySelectorAll("body *:not(#game *)").length)
+    })
+
+    // make sure body exists before injecting
+    return checkElement('body')
+}).then(() => {
     // inject game html and css
     return fetch(chrome.runtime.getURL('/game/content.css')).then(r => r.text()).then(css => {
         css = '<style>' + css + '</style>'
-        document.head.insertAdjacentHTML('beforeend', css);
+        document.head.insertAdjacentHTML('beforeend', css)
     })
 }).then(() => {
     return fetch(chrome.runtime.getURL('/game/' + modeName + '_game.html')).then(r => r.text()).then(html => {
-        document.body.insertAdjacentHTML('afterbegin', html);
+        document.body.insertAdjacentHTML('afterbegin', html)
 
         let filter_text = ""
         if (mode === modesEnum['ap']) {
@@ -104,13 +113,13 @@ new Promise((resolve, reject) => {
     console.log("injecting game")
 
     // make sure test score area has loaded
-    console.log("hi, entering page load delay.....")
-    let start = Date.now()
     checkElement(modeName === 'ap' ? '#scoresListArea' : '.scores-container').then((div) => {
-        console.log(div);
-        console.log("delay done")
-        console.log("waited " + (Date.now() - start) + " ms for page load")
+        document.getElementsByTagName('html')[0].removeAttribute('hidden')
+        hidePage()
 
+        console.log(document.querySelectorAll("body *:not(#game *)").length)
+
+        console.log(div)
         if (modeName === 'ap') {
             ap_action(div)
         } else {
@@ -211,7 +220,7 @@ function processClick(guess) {
 
     if (mode !== modesEnum['ap']) {
         if (guess.indexOf("&lt;") !== -1 && curScore < (mode === modesEnum['sat'] ? 1450 : 1370)) {
-            guess = curScore;
+            guess = curScore
         } else if (guess.indexOf("&lt;") !== -1) {
             guess = mode === modesEnum['sat'] ? 1440 : 1360
         }
@@ -239,7 +248,7 @@ function processClick(guess) {
 function giveUp() {
     if (confirm("Are you sure you want to give up?")) {
         document.getElementById("game").remove()
-        unHidePage();
+        unHidePage()
         console.log("user gave up, unhiding page :-(")
     }
 }
@@ -249,10 +258,18 @@ function setStatus(text) {
     document.getElementById("status").innerHTML = text
 }
 
+function hidePage() {
+    Array.prototype.slice.call(document.querySelectorAll("body *:not(#game *)")).forEach(function(value) {
+        value.classList.add("hide")
+    })
+    document.getElementById("game").classList.remove("hide")
+}
+
 function unHidePage() {
+    document.getElementsByTagName('html')[0].removeAttribute('hidden')
     Array.prototype.slice.call(document.querySelectorAll("body *")).forEach(function(value) {
-        value.classList.remove("hide");
-    });
+        value.classList.remove("hide")
+    })
 }
 
 // sleep
@@ -265,5 +282,5 @@ const checkElement = async selector => {
     while (document.querySelector(selector) === null) {
         await new Promise( resolve => requestAnimationFrame(resolve))
     }
-    return document.querySelector(selector);
-};
+    return document.querySelector(selector)
+}
