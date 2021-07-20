@@ -29,5 +29,7 @@ For any bugs or feature requests, do not hesitate to email appdev.micro@gmail.co
 Privacy Note: None your test scores are stored by the extension after you close the tab containing your test scores (since the variables in the extension script are destroyed). The extension stores user options in the local storage of your browser.
 
 ![](images/game.png)
-![](images/guess.png)
-![](images/popup.png)
+![](images/options.png)
+![](images/sat.png)
+![](images/psat.png)
+![](images/ap.png)
