@@ -2,12 +2,12 @@
   "manifest_version": 2,
   "name": "Score Guessing Game",
   "description": "Guess your SAT/AP test score before you see it!",
-  "version": "2.0",
+  "version": "2.1",
   "content_scripts":[
     {
       "matches":[
-        "https://studentscores.collegeboard.org/*",
-        "https://apscore.collegeboard.org/scores/*"
+        "https://studentscores.collegeboard.org/viewscore",
+        "https://apstudents.collegeboard.org/view-scores"
       ],
       "js": ["game/content.js"],
       "run_at": "document_start"

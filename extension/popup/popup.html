@@ -5,43 +5,42 @@
 
     <h2>Modes</h2>
 
-    <input type="checkbox" id="satLb" name="mode" value="sat">
-    <label for="satLb">SAT/PSAT</label>
-    <p class="arrow sat">&#9654;</p>
-    <br><br>
-    <div id="satDiv" style="margin-left: 20px" hidden>
-        <label class="radio-inline">
-            <input type="radio" id="satR" name="satpsat">SAT
-        </label>
-        <label class="radio-inline">
-            <input type="radio" id="psatR" name="satpsat">PSAT
-        </label><br><br>
+    <details>
+        <summary>
+            <input type="checkbox" id="satLb" name="mode" style="display: inline; vertical-align: middle" value="sat">
+            <label for="satLb">SAT/PSAT</label>
+        </summary>
+        <br>
+        <div style="margin-left: 20px">
+            <label class="radio-inline">
+                <input type="radio" id="satR" name="satpsat">SAT
+            </label>
+            <label class="radio-inline">
+                <input type="radio" id="psatR" name="satpsat">PSAT
+            </label>
+            <br><br>
 
-        <label for="sat">Test Filter (month of test): </label>
-        <input type="text" id="sat"/><br><br>
-    </div>
-
-    <input type="checkbox" id="apLb" name="mode" value="ap">
-    <label for="apLb">AP</label>
-    <p class="arrow ap">&#9654;</p>
-    <br><br>
-    <div id="apDiv" style="margin-left: 20px" hidden>
-        <label for="ap">Tests: </label>
-        <div class="directorist-select directorist-select-multi" id="multiSelect" data-isSearch="true" data-max="10" data-multiSelect="[&quot;Error&quot;]"
-            style="width: 475px;">
-            <input type="hidden" id="ap">
+            <label for="sat">Test Filter (month of test): </label>
+            <input type="text" id="sat"/><br><br>
         </div>
-        <br><br><br><br>
-    </div>
+    </details>
+    <br>
 
-<!--    <input type="checkbox" id="actLb" name="mode" value="act">-->
-<!--    <label for="actLb">ACT</label>-->
-<!--    <p class="arrow act">&#9654;</p>-->
-<!--    <br><br>-->
-<!--    <div id="actDiv" hidden>-->
-<!--        <label for="act">Test Filter (day of test): </label>-->
-<!--        <input type="text" id="act"/><br><br>-->
-<!--    </div>-->
+    <details>
+        <summary>
+            <input type="checkbox" id="apLb" name="mode" style="display: inline; vertical-align: middle" value="ap">
+            <label for="apLb">AP</label>
+        </summary>
+        <br>
+        <div style="margin-left: 20px">
+            <label for="ap">Tests: </label>
+            <div class="directorist-select directorist-select-multi" id="multiSelect" data-isSearch="true" data-max="10" data-multiSelect="[&quot;Error&quot;]"
+                style="width: 475px;">
+                <input type="hidden" id="ap">
+            </div>
+        </div>
+    </details>
+    <br><br>
 
     <button id="save">Save</button>
 
@@ -50,7 +49,6 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
 
     <script src="popup.js"></script>
-    <link rel="stylesheet" href="popup.css">
 
 </body>
 </html>
