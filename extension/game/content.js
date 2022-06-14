@@ -20,6 +20,8 @@ const modesEnum = new Enum('sat', 'psat', 'ap')
 let mode, modeName
 let test_filter
 
+let signin_flag = false
+
 // extension not called when using forward/back buttons?
 
 // determine mode, break if not test score page
@@ -75,6 +77,17 @@ new Promise((resolve, reject) => {
 
     // make sure all other elements are hidden after page loads
     window.addEventListener('load', () => {
+        if (modeName === 'ap') {
+            checkElement('.cb-user').then(element => {
+                signin_flag = element.parentElement.children[0].innerHTML.includes('Sign In')
+                console.log(element.parentElement.children[0].innerHTML)
+                console.log('FLAG: ' + signin_flag)
+                if (signin_flag) {
+                    document.getElementById('game').remove()
+                    unHidePage()
+                }
+            })
+        }
         hidePage()
         console.log(document.querySelectorAll('body *:not(#game *)').length)
     })
@@ -114,6 +127,7 @@ new Promise((resolve, reject) => {
     checkElement(modeName === 'ap' ? '.apscores-card' : '.scores-container').then((div) => {
         document.getElementsByTagName('html')[0].removeAttribute('hidden')
         hidePage()
+        document.getElementById('game').removeAttribute('hidden')
 
         console.log(document.querySelectorAll('body *:not(#game *)').length)
 
@@ -270,7 +284,6 @@ function hidePage() {
     Array.prototype.slice.call(document.querySelectorAll('body *:not(#game *)')).forEach(function(value) {
         value.setAttribute('hidden', 'true')
     })
-    document.getElementById('game').removeAttribute('hidden')
 }
 
 function unHidePage() {

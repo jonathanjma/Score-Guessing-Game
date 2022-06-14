@@ -1,11 +1,13 @@
 // setup ap multiselect
-let apTests = "[\"2-D Art and Design\", \"3-D Art and Design\", \"Drawing\", \"Art History\", \"Music Theory\", \"Comparative Government and Politics\"," +
-    "\"European History\", \"Human Geography\", \"Macroeconomics\", \"Microeconomics\", \"Psychology\", \"United States Government and Politics\"," +
-    "\"United States History\", \"World History: Modern\", \"Calculus AB\", \"Calculus BC\", \"Computer Science A\", \"Computer Science Principles\"," +
-    "\"Statistics\", \"Biology\", \"Chemistry\", \"Environmental Science\", \"Physics 1: Algebra-Based\", \"Physics 2: Algebra-Based\"," +
-    "\"Physics C: Electricity and Magnetism\", \"Physics C: Mechanics\", \"Chinese Language and Culture\", \"French Language and Culture\"," +
-    "\"German Language and Culture\", \"Italian Language and Culture\", \"Japanese Language and Culture\", \"Latin\", \"Spanish Language and Culture\"," +
-    "\"Spanish Literature and Culture\", \"English Literature and Composition\", \"English Language and Composition\"]"
+let apTests = "[\"2-D Art and Design\", \"3-D Art and Design\", \"Art History\", \"Biology\", \"Calculus AB\", \"Calculus BC\", " +
+    "\"Chemistry\", \"Chinese Language and Culture\", \"Comparative Government and Politics\", \"Computer Science A\", " +
+    "\"Computer Science Principles\", \"Drawing\", \"English Language and Composition\", \"English Literature and Composition\", " +
+    "\"Environmental Science\", \"European History\", \"French Language and Culture\", \"German Language and Culture\", " +
+    "\"Human Geography\", \"Italian Language and Culture\", \"Japanese Language and Culture\", \"Latin\", \"Macroeconomics\", " +
+    "\"Microeconomics\", \"Music Theory\", \"Physics 1\", \"Physics 2\", \"Physics C: Electricity and Magnetism\", " +
+    "\"Physics C: Mechanics\", \"Psychology\", \"Research\", \"Seminar\", \"Spanish Language and Culture\", " +
+    "\"Spanish Literature and Culture\", \"Statistics\", \"United States Government and Politics\", \"United States History\", " +
+    "\"World History: Modern\"]"
 document.getElementById('multiSelect').setAttribute('data-multiSelect', apTests)
 
 document.getElementById('save').addEventListener('click', saveSettings)
