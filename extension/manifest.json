@@ -27,7 +27,10 @@
     "256": "icon.png"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "activeTab",
+    "https://studentscores.collegeboard.org/viewscore",
+    "https://apstudents.collegeboard.org/view-scores"
   ],
   "web_accessible_resources": [
     "game/sat_game.html",

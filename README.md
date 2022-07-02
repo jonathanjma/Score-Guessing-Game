@@ -1,9 +1,9 @@
 # Score Guessing Game
-A chrome extension that allows you to guess your SAT/PSAT and AP test score before you see it!
+A Chrome extension that allows you to guess your SAT/PSAT and AP test score before you see it!
 
-How to use:
+## How to use:
 
-SAT/PSAT
+### SAT/PSAT
 1. Click on the extension's icon on your browser's toolbar to bring up the options menu
 2. Click on the arrow next to SAT/PSAT
 3. For PSAT, make sure you select the correct bubble
@@ -11,16 +11,18 @@ SAT/PSAT
 5. Navigate to https://studentscores.collegeboard.org/viewscore
 6. After you sign in/the page loads, the game should appear
 7. Try to guess your score!
-8. Once you guess it, the game should disappear
+8. Once you guess it, the game disappears to show the original website
 
-AP
+### AP
 1. Click on the extension's icon on your browser's toolbar
 2. Click on the arrow next to AP
-3. In the tests field, enter the names of the AP test you took. Autocomplete is available and you can also scroll though the list to find the correct test
-4. Navigate to https://apscore.collegeboard.org/scores/view-your-scores
+3. In the tests field, enter the names of the AP test you took. Autocomplete is available, and you can also scroll through the list to find the tests you want to add. Click the save button at the bottom when you are done.
+4. Navigate to https://apstudents.collegeboard.org/view-scores
 5. After you sign in/the page loads, the game should appear
 6. Try to guess your score(s)!
-7. Once you finish, the game should disappear
+7. Once you finish, the game disappears to show the original website
+
+### Other Info
 
 Note: If you ever want to disable the game for one of the tests, uncheck the box next to it in the options menu.
 

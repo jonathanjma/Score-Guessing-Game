@@ -1,8 +1,16 @@
+// main extension file
+// note: 1200 x 760 for screenshots
+
+// ↓ runs in global scope if script is injected multiple times on same page
+(() => {
+
 // hide page initially
+console.log('*********************** extension start')
+let dup_flag = document.getElementsByTagName('html')[0].hidden // catch multiple instances
 document.getElementsByTagName('html')[0].setAttribute('hidden', 'true')
 console.log('hiding page')
 
-// mode enum definition
+// define mode enum
 class Enum {
     constructor(...keys) {
         keys.forEach((key, i) => {
@@ -22,20 +30,21 @@ let test_filter
 
 let signin_flag = false
 
-// extension not called when using forward/back buttons?
-
-// determine mode, break if not test score page
 new Promise((resolve, reject) => {
-    // location.href not always updated (sometimes is prev page url before redirect)?
+
+    // break if script has already been injected
+    if (dup_flag) {
+        unHidePage()
+        reject('2nd run????')
+    }
+
+    // determine mode, break if not test score page
     console.log(location.href)
-    if (location.href === 'https://apstudents.collegeboard.org/view-scores') { // might need '/' at end?
-        // if (!location.href.includes('apscore.collegeboard.org/scores/view-your-scores')) {
-        //     unHidePage()
-        //     reject('Not AP Score page')
-        // }
+    if (location.href === 'https://apstudents.collegeboard.org/view-scores' ||
+        location.href === 'https://apstudents.collegeboard.org/view-scores/') {
         resolve(modesEnum['ap'])
     } else if (location.href === 'https://studentscores.collegeboard.org/viewscore') {
-        chrome.storage.local.get(['satOverPsat'], function(fromStorage) {
+        chrome.storage.local.get(['satOverPsat'], fromStorage => {
             resolve(fromStorage['satOverPsat'] ? modesEnum['sat'] : modesEnum['psat'])
         })
     } else {
@@ -45,13 +54,12 @@ new Promise((resolve, reject) => {
 }).then(value =>  {
     mode = value
     modeName = Object.keys(modesEnum).find(key => modesEnum[key] === mode)
-    // console.log(mode)
     console.log(modeName)
 
     // get test filter, break if mode is disabled
     return new Promise((resolve, reject) => {
         if (mode === modesEnum['ap']) {
-            chrome.storage.local.get(['apEnabled', 'ap'], function (fromStorage) {
+            chrome.storage.local.get(['apEnabled', 'ap'], fromStorage => {
                 if (fromStorage['apEnabled']) {
                     resolve(JSON.parse(fromStorage['ap']))
                 } else {
@@ -61,7 +69,7 @@ new Promise((resolve, reject) => {
             })
 
         } else {
-            chrome.storage.local.get(['satEnabled', 'sat'], function (fromStorage) {
+            chrome.storage.local.get(['satEnabled', 'sat'], fromStorage => {
                 if (fromStorage['satEnabled']) {
                     resolve(fromStorage['sat'])
                 } else {
@@ -78,13 +86,22 @@ new Promise((resolve, reject) => {
     // make sure all other elements are hidden after page loads
     window.addEventListener('load', () => {
         if (modeName === 'ap') {
+            // make sure user is logged into ap scores page
             checkElement('.cb-user').then(element => {
                 signin_flag = element.parentElement.children[0].innerHTML.includes('Sign In')
                 console.log(element.parentElement.children[0].innerHTML)
-                console.log('FLAG: ' + signin_flag)
+                console.log('Sign In Flag: ' + signin_flag)
                 if (signin_flag) {
-                    document.getElementById('game').remove()
                     unHidePage()
+                    if (document.getElementById('game'))
+                        document.getElementById('game').setAttribute('hidden', 'true')
+
+                    // backup in case signin_flag misfires
+                    checkElement('.apscores-card').then(() => {
+                        hidePage()
+                        document.getElementById('game').removeAttribute('hidden')
+                        console.log('ok, susge.....')
+                    })
                 }
             })
         }
@@ -102,14 +119,13 @@ new Promise((resolve, reject) => {
     })
 }).then(() => {
     return fetch(chrome.runtime.getURL('/game/' + modeName + '_game.html')).then(r => r.text()).then(html => {
+
         document.body.insertAdjacentHTML('afterbegin', html)
 
+        // show test filter and mode
         let filter_text = ''
         if (mode === modesEnum['ap']) {
-            for (let test of test_filter) {
-                filter_text += test + ', '
-            }
-            filter_text = filter_text.substring(0, filter_text.length-2)
+            filter_text = test_filter.join(', ')
         } else {
             filter_text = test_filter
         }
@@ -123,21 +139,30 @@ new Promise((resolve, reject) => {
 }).then(() => {
     console.log('injecting game')
 
+    // rare condition where game not hidden when user not signed into ap page
+    if (signin_flag) {
+        document.getElementById('game').setAttribute('hidden', 'true')
+        console.log('dont do this.... not signed in')
+    }
+
     // make sure test score area has loaded
-    checkElement(modeName === 'ap' ? '.apscores-card' : '.scores-container').then((div) => {
+    checkElement(modeName === 'ap' ? '.apscores-card' : '.scores-container').then(div => {
         document.getElementsByTagName('html')[0].removeAttribute('hidden')
         hidePage()
         document.getElementById('game').removeAttribute('hidden')
 
         console.log(document.querySelectorAll('body *:not(#game *)').length)
 
-        console.log(div)
+        // console.log(div)
         if (modeName === 'ap') {
             ap_action()
         } else {
             sat_action(div)
         }
     })
+}).catch(err => {
+    console.log('Error/Rejected Promise:')
+    console.log(err)
 })
 
 let curScore
@@ -148,7 +173,7 @@ function sat_action(tests_div) {
     for (let test of tests_div.children) {
         let test_info = test.attributes.getNamedItem('aria-label').textContent
         console.log(test_info)
-        console.log(test)
+        // console.log(test)
         if (test_info.indexOf(test_filter) !== -1) {
             test_div = test
             break
@@ -158,11 +183,11 @@ function sat_action(tests_div) {
     try {
         // find scores in test element
         let scores = test_div.getElementsByClassName('score')
-        console.log(scores)
+        // console.log(scores)
         curScore = scores[0].innerHTML
-        let reading_score = scores[1].innerHTML
-        let math_score = scores[2].innerHTML
-        console.log('Scores: ' + curScore + ' ' + reading_score + ' ' + math_score)
+        // let reading_score = scores[1].innerHTML
+        // let math_score = scores[2].innerHTML
+        // console.log('Scores: ' + curScore + ' ' + reading_score + ' ' + math_score)
 
         // enable game buttons
         let game_buttons = document.getElementsByClassName('gbtn')
@@ -182,24 +207,36 @@ function sat_action(tests_div) {
 let score_dict = []
 let index = 0, curTest
 function ap_action() {
-    // check to make sure all ap tests are valid
 
     try {
+        let filter_clone = Array.from(test_filter)
+
+        // find test scores
         let all_tests_divs = document.getElementsByClassName('apscores-card')
+        console.log('tests found:')
         for (let test_div of all_tests_divs) {
-            console.log(test_div)
+            // console.log(test_div)
             if (!test_div.getAttribute('data-testid').includes('award')) {
                 let test_name = test_div.children[0].children[0].innerHTML
                 let test_score = test_div.getElementsByClassName('apscores-badge')[0].childNodes[1].nodeValue
                 console.log(test_name)
-                console.log(test_score)
-
+                // console.log(test_score)
                 test_filter.forEach((item) => {
                     if (('AP ' + item).includes(test_name)) {
                         score_dict.push({test: test_name, score: parseInt(test_score)})
+                        filter_clone = remove(filter_clone, item)
                     }
                 })
             }
+        }
+
+        // if some exams in test filter can't be found
+        if (filter_clone.length > 0) {
+            let couldNotFind = document.createElement('p')
+            couldNotFind.className = 'cp'; couldNotFind.style.color = 'red';
+            couldNotFind.innerHTML = 'Could not find exam(s): ' + filter_clone.join(', ')
+            document.getElementsByClassName('corner')[0].appendChild(couldNotFind)
+            console.log('Could not find exam(s): ' + filter_clone.join(', '))
         }
         console.log(score_dict)
 
@@ -222,7 +259,7 @@ function ap_action() {
 function nextTest() {
     curTest = score_dict[index]['test']
     curScore = score_dict[index]['score']
-    console.log(curTest + ' ' + curScore)
+    console.log('Current test: ' + curTest/* + ' ' + curScore*/)
 
     document.getElementById('test').innerHTML = curTest
     setStatus('Pick a Number!')
@@ -305,3 +342,11 @@ const checkElement = async selector => {
     }
     return document.querySelector(selector)
 }
+
+// remove element from array
+function remove(arr, value) {
+    return arr.filter(ele => {
+        return ele !== value;
+    });
+}
+})()
